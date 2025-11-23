@@ -1,0 +1,60 @@
+# NEXORA – AI-Powered Career & Course Roadmap Advisor
+
+NEXORA is a **ChatGPT-style AI mentor** that helps students and freshers choose the right **career path, skills, and learning roadmap**.
+
+It combines:
+
+- 🧠 **Groq LLaMA 3.1** (via API) for smart, conversational guidance  
+- 📚 **Static learning paths & role-based roadmaps** (AI, Data Science, Web Dev, Cloud, Cybersecurity)  
+- 💬 A modern **chat UI** similar to ChatGPT built with **Flask + Tailwind**  
+
+Use it for **career guidance, course planning, project ideas, and interview prep**.
+
+---
+
+## ✨ Features
+
+- 🤖 **AI Mentor Chat**  
+  Ask anything about AI, Data Science, Web Development, Cloud, Cybersecurity, roadmaps, projects or placements.
+
+- 🧭 **Static Learning Path Recommender**  
+  Select an **interest** (AI, Data Science, Web Dev, Cloud & DevOps, Cybersecurity) and **level** (Beginner / Intermediate / Advanced) to get a curated learning path.
+
+- 🧑‍💻 **Role-Based Roadmap Viewer**  
+  Pre-defined step-by-step roadmaps for:
+  - AI Engineer  
+  - Data Scientist  
+  - Full-Stack Developer  
+  - Cloud & DevOps  
+  - Cybersecurity  
+
+- 🖥️ **ChatGPT-like UI**  
+  - Dark mode  
+  - Animated bot avatar  
+  - “New Chat” button to reset conversation  
+  - Markdown-like formatting for headings & bullet points  
+
+- 🌐 **REST API Endpoints**  
+  Can be used from other frontends (React, mobile app, etc.)
+
+---
+
+## 🛠 Tech Stack
+
+- **Backend**: Python, Flask  
+- **AI Model**: Groq LLaMA `llama-3.1-8b-instant`  
+- **Frontend**: HTML, Tailwind CSS, Vanilla JS (served via Flask template)  
+- **Server**: Can run locally or on platforms like Railway / Render / Cyclic  
+- **Version Control**: Git + GitHub  
+
+---
+
+## 📁 Project Structure
+
+```bash
+NEXORA-AI/
+├── app.py               # Main Flask application
+├── requirements.txt     # Python dependencies
+├── templates/
+│   └── index.html       # ChatGPT-like frontend UI
+└── README.md            # Project documentation

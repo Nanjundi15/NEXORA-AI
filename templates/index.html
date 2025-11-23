@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>NEXORA AI Mentor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Tailwind via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .chat-scroll {
+        scrollbar-width: thin;
+      }
+      .chat-scroll::-webkit-scrollbar {
+        width: 6px;
+      }
+      .chat-scroll::-webkit-scrollbar-thumb {
+        background: #4b5563;
+        border-radius: 999px;
+      }
+
+      /* subtle glowing animation around bot avatar */
+      @keyframes pulse-glow {
+        0% {
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 14px rgba(34, 197, 94, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-[#050816] text-slate-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-6xl bg-gradient-to-br from-slate-900/80 via-slate-900/90 to-black/90 border border-slate-800/80 rounded-3xl shadow-[0_0_80px_rgba(15,23,42,0.8)] p-4 md:p-6 flex flex-col gap-4">
+      <!-- HEADER -->
+      <header class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-4">
+          <!-- Animated Bot Avatar -->
+          <div class="relative">
+            <div
+              class="h-12 w-12 md:h-14 md:w-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center shadow-lg animate-[pulse-glow_2.5s_infinite]"
+            >
+              <div class="h-7 w-7 md:h-8 md:w-8 rounded-xl bg-slate-950 flex items-center justify-center">
+                <span class="text-2xl md:text-3xl">🤖</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">
+              NEXORA Dynamic AI Mentor
+            </h1>
+            <p class="text-xs md:text-sm text-slate-300 mt-1">
+              AI assistant for
+              <span class="font-semibold text-emerald-400">careers</span>,
+              <span class="font-semibold text-emerald-400">courses</span>,
+              <span class="font-semibold text-emerald-400">skills</span> &amp;
+              <span class="font-semibold text-emerald-400">placements</span>.
+            </p>
+          </div>
+        </div>
+        <div class="text-[0.65rem] md:text-xs text-right text-slate-400">
+          <p>Career|Growth|</p>
+          <p>Designed for all Techies ✨</p>
+        </div>
+      </header>
+
+      <!-- BOT WELCOME BANNER -->
+      <section
+        class="w-full rounded-2xl bg-gradient-to-r from-emerald-500/15 via-sky-500/10 to-purple-500/10 border border-emerald-500/30 px-4 py-3 flex items-center gap-3 text-xs md:text-sm"
+      >
+        <div
+          class="h-8 w-8 rounded-xl bg-slate-900/80 border border-emerald-400/60 flex items-center justify-center shadow-md"
+        >
+          <span class="text-lg">💬</span>
+        </div>
+        <div>
+          <p class="font-semibold text-emerald-300">
+            Hello, welcome to NEXORA!
+          </p>
+          <p class="text-slate-300">
+            I’m your AI mentor. Ask me anything about roadmaps, projects, interviews,
+            or explore static learning paths on the right.
+          </p>
+        </div>
+      </section>
+
+      <main class="grid grid-cols-1 lg:grid-cols-[2fr,1.5fr] gap-4">
+        <!-- CHAT SECTION -->
+        <section
+          class="bg-[#050b16]/90 border border-slate-800/70 rounded-2xl p-4 flex flex-col max-h-[80vh]"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-sm md:text-base font-semibold flex items-center gap-2">
+              <span class="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              ChatGPT-like AI Chat
+              <span class="text-[0.6rem] md:text-[0.7rem] text-slate-400">
+                (Groq · llama-3.1-8b-instant)
+              </span>
+            </h2>
+            <button
+              id="clear-btn"
+              class="text-[0.65rem] md:text-[0.7rem] px-3 py-1 rounded-full border border-slate-600 bg-slate-900/80 hover:border-emerald-400 hover:text-emerald-300 transition"
+            >
+              New Chat
+            </button>
+          </div>
+
+          <div
+            id="chat-box"
+            class="flex-1 overflow-y-auto chat-scroll space-y-3 pr-1 text-sm bg-gradient-to-b from-slate-900/60 to-slate-950/80 rounded-xl px-2 py-3"
+          >
+            <!-- messages will be inserted by JS (resetChat) -->
+          </div>
+
+          <!-- INPUT BAR -->
+          <form id="chat-form" class="mt-3 flex items-center gap-2">
+            <textarea
+              id="user-input"
+              rows="1"
+              class="flex-1 bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70 resize-none placeholder:text-slate-500"
+              placeholder="Ask anything like: “6-month roadmap for AI Engineer”, “Project ideas for Data Science”, or “How to prepare for product-based interviews?”"
+            ></textarea>
+            <button
+              type="submit"
+              id="send-btn"
+              class="px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 text-xs md:text-sm font-semibold hover:bg-emerald-400 active:scale-95 transition shadow-lg shadow-emerald-500/30"
+            >
+              Send
+            </button>
+          </form>
+        </section>
+
+        <!-- RIGHT PANEL: ROADMAPS & RECOMMENDATIONS -->
+        <section class="space-y-4 text-xs md:text-sm">
+          <!-- Interest / Level Recommender -->
+          <div
+            class="bg-[#050b16]/90 border border-slate-800/70 rounded-2xl p-4 shadow-inner shadow-black/40"
+          >
+            <h2 class="text-sm md:text-base font-semibold mb-1 flex items-center gap-2">
+              <span class="text-emerald-400">📚</span> Static Learning Path Recommender
+            </h2>
+            <p class="text-[0.7rem] md:text-xs text-slate-400 mb-3">
+              Uses backend data (interests, levels, roadmaps) – same logic as your React-style
+              NEXORA advisor, but fully in Flask.
+            </p>
+
+            <form id="reco-form" class="space-y-2">
+              <div class="flex flex-col sm:flex-row gap-3">
+                <div class="flex-1">
+                  <label class="text-xs text-slate-400">Interest / Track</label>
+                  <select
+                    id="interest-select"
+                    class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70"
+                  >
+                    <!-- options filled by JS -->
+                  </select>
+                </div>
+                <div class="w-full sm:w-40">
+                  <label class="text-xs text-slate-400">Level</label>
+                  <select
+                    id="level-select"
+                    class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70"
+                  >
+                    <!-- levels filled by JS -->
+                  </select>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                class="mt-2 px-4 py-2 rounded-xl bg-sky-500 text-slate-950 text-xs font-semibold hover:bg-sky-400 active:scale-95 transition shadow-md shadow-sky-500/30"
+              >
+                Generate Learning Path
+              </button>
+            </form>
+
+            <ul
+              id="reco-list"
+              class="mt-3 space-y-1.5 text-[0.7rem] md:text-xs list-disc list-inside text-slate-200"
+            ></ul>
+          </div>
+
+          <!-- Role Roadmap Viewer -->
+          <div
+            class="bg-[#050b16]/90 border border-slate-800/70 rounded-2xl p-4 shadow-inner shadow-black/40"
+          >
+            <h2 class="text-sm md:text-base font-semibold mb-1 flex items-center gap-2">
+              <span class="text-emerald-400">🧭</span> Role-Based Roadmap Viewer
+            </h2>
+            <p class="text-[0.7rem] md:text-xs text-slate-400 mb-3">
+              Fetches roadmap steps from <code class="text-emerald-300">/role_roadmaps</code> and
+              shows them in a clean timeline view.
+            </p>
+
+            <div class="mb-3">
+              <label class="text-xs text-slate-400">Target Role</label>
+              <select
+                id="role-select"
+                class="mt-1 w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70"
+              >
+                <!-- roles filled by JS -->
+              </select>
+            </div>
+
+            <ol
+              id="role-steps"
+              class="relative border-l border-slate-700 ml-1 mt-2 space-y-3 text-[0.7rem] md:text-xs"
+            ></ol>
+          </div>
+        </section>
+      </main>
+
+      <footer
+        class="pt-1 text-[0.65rem] text-slate-500 flex flex-col md:flex-row justify-between gap-1 border-t border-slate-800/60 mt-1 pt-3"
+      >
+        <p>NEXORA Dynamic AI Mentor</p>
+        <p>Nanjundi ⚡</p>
+      </footer>
+    </div>
+
+    <script>
+      const chatBox = document.getElementById("chat-box");
+      const chatForm = document.getElementById("chat-form");
+      const userInput = document.getElementById("user-input");
+      const sendBtn = document.getElementById("send-btn");
+      const clearBtn = document.getElementById("clear-btn");
+
+      const interestSelect = document.getElementById("interest-select");
+      const levelSelect = document.getElementById("level-select");
+      const recoForm = document.getElementById("reco-form");
+      const recoList = document.getElementById("reco-list");
+
+      const roleSelect = document.getElementById("role-select");
+      const roleSteps = document.getElementById("role-steps");
+
+      let isSending = false;
+
+      const initialBotMessage = `
+        <div class="flex justify-start">
+          <div
+            class="max-w-[85%] rounded-2xl rounded-bl-sm px-3 py-2 bg-slate-800/90 text-slate-50 shadow-sm text-xs md:text-sm border border-slate-700/70"
+          >
+            👋 <span class="font-semibold text-emerald-300">Hello, welcome to NEXORA!</span>
+            I am your Dynamic AI Advisor. Ask me about AI, Data Science, Web Dev, Cloud,
+            Cybersecurity, roadmaps, or placements.
+          </div>
+        </div>
+      `;
+
+      function resetChat() {
+        chatBox.innerHTML = initialBotMessage;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      function appendMessage(role, text) {
+        const wrapper = document.createElement("div");
+        wrapper.className =
+          "flex " + (role === "user" ? "justify-end" : "justify-start");
+
+        const bubble = document.createElement("div");
+        bubble.className =
+          "max-w-[85%] rounded-2xl px-3 py-2 text-xs md:text-sm shadow-sm " +
+          (role === "user"
+            ? "bg-emerald-500 text-slate-950 rounded-br-sm shadow-md shadow-emerald-500/40"
+            : "bg-slate-800/90 text-slate-50 rounded-bl-sm border border-slate-700/70");
+
+        // allow basic markdown **bold** and line breaks
+        bubble.innerHTML = text
+          .replace(/\n/g, "<br>")
+          .replace(/\*\*(.+?)\*\*/g, "<span class='font-semibold text-emerald-300'>$1</span>");
+
+        wrapper.appendChild(bubble);
+        chatBox.appendChild(wrapper);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      function appendThinking() {
+        const wrapper = document.createElement("div");
+        wrapper.className = "flex justify-start";
+        wrapper.id = "thinking-bubble";
+
+        const bubble = document.createElement("div");
+        bubble.className =
+          "bg-slate-800/90 text-slate-300 rounded-2xl rounded-bl-sm px-3 py-2 text-[0.7rem] flex items-center gap-2 border border-slate-700/70";
+        bubble.innerHTML =
+          '<span class="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>Thinking...';
+
+        wrapper.appendChild(bubble);
+        chatBox.appendChild(wrapper);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      function removeThinking() {
+        const t = document.getElementById("thinking-bubble");
+        if (t) t.remove();
+      }
+
+      // ----- Chat form submit -----
+      chatForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const text = userInput.value.trim();
+        if (!text || isSending) return;
+
+        appendMessage("user", text);
+        userInput.value = "";
+
+        isSending = true;
+        sendBtn.disabled = true;
+        appendThinking();
+
+        try {
+          const res = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text }),
+          });
+          const data = await res.json();
+          removeThinking();
+          appendMessage("assistant", data.answer || "(no response)");
+        } catch (err) {
+          removeThinking();
+          appendMessage(
+            "assistant",
+            "⚠ Error talking to server. Check if Flask is running."
+          );
+        } finally {
+          isSending = false;
+          sendBtn.disabled = false;
+        }
+      });
+
+      // ----- New Chat / Clear button -----
+      clearBtn.addEventListener("click", () => {
+        resetChat();
+      });
+
+      // ----- Load interests, levels, and roadmaps -----
+      async function initSelectors() {
+        try {
+          const [interestsRes, levelsRes, roadmapsRes] = await Promise.all([
+            fetch("/interests"),
+            fetch("/levels"),
+            fetch("/role_roadmaps"),
+          ]);
+
+          const interestsData = await interestsRes.json();
+          const levelsData = await levelsRes.json();
+          const roadmapsData = await roadmapsRes.json();
+
+          // Fill interests
+          interestSelect.innerHTML = "";
+          (interestsData.interests || []).forEach((i) => {
+            const opt = document.createElement("option");
+            opt.value = i;
+            opt.textContent = i;
+            interestSelect.appendChild(opt);
+          });
+
+          // Fill levels
+          levelSelect.innerHTML = "";
+          (levelsData.levels || []).forEach((l) => {
+            const opt = document.createElement("option");
+            opt.value = l;
+            opt.textContent = l;
+            levelSelect.appendChild(opt);
+          });
+
+          // Fill roles
+          roleSelect.innerHTML = "";
+          const roles = Object.keys(roadmapsData.role_roadmaps || {});
+          roles.forEach((r) => {
+            const opt = document.createElement("option");
+            opt.value = r;
+            opt.textContent = r;
+            roleSelect.appendChild(opt);
+          });
+
+          // Trigger display for first role
+          if (roles.length > 0) {
+            updateRoleSteps(roles[0], roadmapsData.role_roadmaps[roles[0]]);
+          }
+        } catch (err) {
+          console.error("Error initializing selectors:", err);
+        }
+      }
+
+      function updateRoleSteps(role, stepsArray) {
+        roleSteps.innerHTML = "";
+        (stepsArray || []).forEach((step, idx) => {
+          const li = document.createElement("li");
+          li.className = "ml-4 relative pl-4";
+          li.innerHTML = `
+            <div class="absolute w-2 h-2 bg-emerald-400 rounded-full -left-1.5 mt-1 shadow shadow-emerald-400/70"></div>
+            <p class="text-[0.7rem] font-semibold text-emerald-300">Step ${idx + 1}</p>
+            <p class="text-[0.7rem] md:text-xs text-slate-100">${step}</p>
+          `;
+          roleSteps.appendChild(li);
+        });
+      }
+
+      // Change roadmap when role changes
+      roleSelect.addEventListener("change", async () => {
+        const role = roleSelect.value;
+        try {
+          const res = await fetch(`/role_roadmaps/${encodeURIComponent(role)}`);
+          const data = await res.json();
+          if (data.steps) {
+            updateRoleSteps(data.role || role, data.steps);
+          }
+        } catch (err) {
+          console.error("Error fetching role roadmap:", err);
+        }
+      });
+
+      // ----- Recommendations form -----
+      recoForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const interest = interestSelect.value;
+        const level = levelSelect.value;
+
+        recoList.innerHTML = "<li>Loading...</li>";
+        try {
+          const res = await fetch("/recommendations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ interest, level }),
+          });
+          const data = await res.json();
+          recoList.innerHTML = "";
+          (data.recommendations || []).forEach((item) => {
+            const li = document.createElement("li");
+            li.textContent = item;
+            recoList.appendChild(li);
+          });
+        } catch (err) {
+          recoList.innerHTML =
+            "<li>⚠ Error fetching recommendations. Check if Flask is running.</li>";
+        }
+      });
+
+      // Init on load
+      resetChat();
+      initSelectors();
+    </script>
+  </body>
+</html>

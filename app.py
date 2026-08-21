@@ -1,11 +1,16 @@
 import os
 from typing import List
+
 from flask import Flask, jsonify, request, render_template
 from groq import Groq
 
+
 app = Flask(__name__)
 
-# ----------------- STATIC DATA -----------------
+
+# ============================================================
+# STATIC DATA
+# ============================================================
 
 INTERESTS = [
     "Artificial Intelligence",
@@ -15,107 +20,129 @@ INTERESTS = [
     "Cybersecurity",
 ]
 
-LEVELS = ["Beginner", "Intermediate", "Advanced"]
+LEVELS = [
+    "Beginner",
+    "Intermediate",
+    "Advanced",
+]
+
 
 ROLE_ROADMAPS = {
+
     "AI Engineer": [
         "Learn Python, basic statistics, and linear algebra",
-        "Study supervised learning (regression, classification) using scikit-learn",
-        "Practice on Kaggle datasets (image, text, tabular)",
-        "Learn deep learning basics (ANN, CNN, RNN) with PyTorch or TensorFlow",
-        "Build 2–3 end-to-end AI projects and deploy with a simple web UI",
-        "Explore MLOps basics: model monitoring, retraining, and CI/CD",
+        "Study supervised learning using scikit-learn",
+        "Practice on Kaggle datasets",
+        "Learn deep learning with PyTorch or TensorFlow",
+        "Build 2–3 end-to-end AI projects",
+        "Learn MLOps, monitoring, retraining, and CI/CD",
     ],
 
     "Data Scientist": [
-        "Master Python, NumPy, Pandas, and data visualization",
-        "Understand EDA, feature engineering, and hypothesis testing",
-        "Learn classic ML models: Linear/Logistic Regression, Trees, Ensembles",
-        "Work with real-world datasets (finance, healthcare, e-commerce)",
-        "Learn SQL + basic dashboarding (Power BI / Tableau)",
-        "Build a portfolio of 3–5 case studies with clear business impact",
+        "Master Python, NumPy, Pandas, and visualization",
+        "Learn EDA, feature engineering, and hypothesis testing",
+        "Learn Regression, Trees, Ensembles, and other ML models",
+        "Work with real-world datasets",
+        "Learn SQL and Power BI / Tableau",
+        "Build 3–5 portfolio case studies",
     ],
 
     "Full-Stack Developer": [
         "Learn HTML, CSS, and modern JavaScript",
-        "Pick a frontend framework (React, Vue, or Angular)",
-        "Learn backend (Node.js/Express, Django, or Spring Boot)",
-        "Practice building REST APIs and authentication",
-        "Work with a database (PostgreSQL / MongoDB)",
-        "Deploy full-stack apps to cloud (Render, Vercel, Azure, AWS)",
+        "Learn React or another frontend framework",
+        "Learn backend development",
+        "Build REST APIs and authentication",
+        "Learn PostgreSQL or MongoDB",
+        "Deploy applications using Render, Vercel, Azure, or AWS",
     ],
 
     "Cloud & DevOps": [
-        "Understand OS, networking, and basic Linux commands",
-        "Learn one cloud: Azure / AWS / GCP fundamentals",
+        "Learn Linux and networking fundamentals",
+        "Learn Azure, AWS, or GCP fundamentals",
         "Work with VMs, storage, networking, and IAM",
-        "Study containers (Docker, Kubernetes basics)",
-        "Automate with CI/CD tools (GitHub Actions, Azure DevOps)",
-        "Prepare and clear at least one cloud certification",
+        "Learn Docker and Kubernetes basics",
+        "Learn CI/CD with GitHub Actions or Azure DevOps",
+        "Prepare for a cloud certification",
     ],
 
     "Cybersecurity": [
-        "Learn networking fundamentals and OS concepts",
-        "Understand common vulnerabilities (OWASP Top 10)",
-        "Practice using tools like Burp Suite, Wireshark, Nmap",
-        "Participate in CTFs and follow ethical guidelines strictly",
-        "Study basic cryptography and secure coding practices",
-        "Build a small lab environment for practicing tools safely",
+        "Learn networking and operating system fundamentals",
+        "Understand OWASP Top 10",
+        "Practice with Burp Suite, Wireshark, and Nmap",
+        "Participate in ethical CTFs",
+        "Learn cryptography and secure coding",
+        "Build a safe cybersecurity lab",
     ],
 }
 
 
-def generate_recommendations(interest: str, level: str) -> List[str]:
-    """Return learning path recommendations based on interest + level."""
+# ============================================================
+# STATIC RECOMMENDATIONS
+# ============================================================
 
-    recs: List[str] = []
+def generate_recommendations(
+    interest: str,
+    level: str
+) -> List[str]:
+
+    recs = []
 
     if interest == "Artificial Intelligence":
+
         recs.extend([
-            "Complete Python + NumPy + Pandas basics.",
-            "Study core ML algorithms (Regression, SVM, Trees, Ensembles).",
-            "Learn at least one deep learning framework (PyTorch / TensorFlow).",
-            "Build projects: image classifier, text sentiment model, recommendation system.",
+            "Complete Python, NumPy, and Pandas basics.",
+            "Study core Machine Learning algorithms.",
+            "Learn PyTorch or TensorFlow.",
+            "Build image classification, NLP, and recommendation projects.",
         ])
 
     elif interest == "Data Science":
+
         recs.extend([
-            "Learn statistics, probability, and EDA thoroughly.",
-            "Practice SQL queries on realistic datasets.",
-            "Create dashboards with Power BI / Tableau.",
-            "Work on case studies: churn prediction, sales forecasting, A/B testing.",
+            "Learn statistics, probability, and EDA.",
+            "Practice SQL using realistic datasets.",
+            "Create Power BI or Tableau dashboards.",
+            "Build churn prediction, forecasting, and A/B testing projects.",
         ])
 
     elif interest == "Web Development":
+
         recs.extend([
-            "Finish HTML, CSS, and modern JavaScript (ES6+).",
-            "Learn React and build at least 3 responsive UIs.",
-            "Connect frontend to a simple REST API backend.",
-            "Deploy your apps to Vercel / Netlify / Render.",
+            "Learn HTML, CSS, and modern JavaScript.",
+            "Learn React and build responsive applications.",
+            "Connect frontend applications to REST APIs.",
+            "Deploy applications using Vercel, Netlify, or Render.",
         ])
 
     elif interest == "Cloud & DevOps":
+
         recs.extend([
-            "Understand Linux basics and shell scripting.",
-            "Pick one cloud provider (Azure recommended).",
-            "Learn Docker and basics of CI/CD.",
-            "Deploy at least one end-to-end project to the cloud.",
+            "Learn Linux and shell scripting.",
+            "Learn Azure, AWS, or GCP.",
+            "Learn Docker and CI/CD.",
+            "Deploy an end-to-end cloud application.",
         ])
 
     elif interest == "Cybersecurity":
+
         recs.extend([
-            "Learn networking fundamentals and OS concepts.",
-            "Understand common vulnerabilities (OWASP Top 10).",
-            "Practice using tools like Burp Suite, Wireshark, Nmap.",
-            "Participate in CTFs and follow ethical guidelines strictly.",
+            "Learn networking and operating systems.",
+            "Study OWASP Top 10.",
+            "Practice with Burp Suite, Wireshark, and Nmap.",
+            "Participate in ethical CTFs.",
         ])
 
     if level == "Beginner":
+
         prefix = "Start with strong fundamentals:"
+
     elif level == "Intermediate":
-        prefix = "You already know basics, now focus on:"
+
+        prefix = "You already know the basics. Focus on:"
+
     else:
-        prefix = "You are at an advanced level, polish these areas:"
+
+        prefix = "At an advanced level, focus on:"
 
     return [prefix] + recs
 
@@ -126,147 +153,177 @@ def generate_recommendations(interest: str, level: str) -> List[str]:
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-# IMPORTANT:
-# Set GROQ_MODEL in Render Environment Variables.
-# If it is not set, this model will be used.
+# You can change this from Render without changing the code.
 GROQ_MODEL = os.getenv(
     "GROQ_MODEL",
     "llama-3.3-70b-versatile"
 )
 
+
 if not GROQ_API_KEY:
-    print("WARNING: GROQ_API_KEY is not set.")
 
-print(f"NEXORA Groq model: {GROQ_MODEL}")
+    print(
+        "WARNING: GROQ_API_KEY is not configured."
+    )
 
-groq_client = None
+    groq_client = None
 
-if GROQ_API_KEY:
-    groq_client = Groq(api_key=GROQ_API_KEY)
+else:
+
+    print("GROQ API KEY detected.")
+    print(f"NEXORA MODEL: {GROQ_MODEL}")
+
+    groq_client = Groq(
+        api_key=GROQ_API_KEY
+    )
 
 
 # ============================================================
 # AI PROMPT
 # ============================================================
 
-def build_llm_prompt(user_question: str) -> str:
-    """
-    Prompt that tells Groq to behave like NEXORA AI Advisor.
-    """
+def build_llm_prompt(
+    user_question: str
+) -> str:
 
-    prompt = f"""
-You are NEXORA Dynamic AI Advisor.
+    return f"""
+You are NEXORA Dynamic AI Mentor.
 
-You help students and freshers with:
+You help students, freshers, and professionals with:
 
-- Choosing career roles
-- AI Engineering
+- Artificial Intelligence
+- Machine Learning
 - Data Science
 - Full-Stack Development
-- Cloud & DevOps
+- Cloud and DevOps
 - Cybersecurity
+- Career planning
 - Learning roadmaps
 - Projects
 - Interview preparation
 - Resume preparation
 - Placements
-- Skills development
 
-Available levels:
+Available learning levels:
 
 - Beginner
 - Intermediate
 - Advanced
 
-Give practical, accurate and actionable advice.
+Give practical and actionable answers.
 
 For roadmap questions:
-- Give clear step-by-step guidance.
-- Mention technologies and tools.
+- Give step-by-step guidance.
+- Mention technologies.
 - Suggest practical projects.
-- Mention what to learn first.
-- Avoid unnecessary information.
+- Explain what to learn first.
 
 For interview questions:
 - Explain concepts clearly.
 - Give examples when useful.
-- Suggest how to prepare.
+- Include preparation tips.
 
-Keep the answer structured and easy to read.
+Keep answers structured and easy to understand.
 
 User question:
+
 {user_question}
-"""
-
-    return prompt.strip()
+""".strip()
 
 
 # ============================================================
-# GROQ CHAT
+# GROQ AI FUNCTION
 # ============================================================
 
-def ask_llm(message: str) -> str:
-    """
-    Send user message to Groq and return the AI response.
-    """
+def ask_llm(
+    message: str
+) -> str:
 
     if not GROQ_API_KEY:
+
         return (
-            "⚠ GROQ_API_KEY is not configured on the server. "
-            "Please add it in Render Environment Variables."
+            "⚠ GROQ_API_KEY is not configured. "
+            "Please add GROQ_API_KEY in Render Environment Variables."
         )
 
+
     if groq_client is None:
-        return "⚠ Groq client could not be initialized."
+
+        return (
+            "⚠ Groq client could not be initialized."
+        )
+
 
     prompt = build_llm_prompt(message)
 
+
     try:
 
+        print(
+            f"Sending request to Groq model: {GROQ_MODEL}"
+        )
+
+
         response = groq_client.chat.completions.create(
+
             model=GROQ_MODEL,
+
             messages=[
+
                 {
                     "role": "system",
                     "content": (
-                        "You are NEXORA AI, a professional career, "
-                        "learning and placement mentor."
+                        "You are NEXORA AI, a professional "
+                        "career and learning mentor."
                     ),
                 },
+
                 {
                     "role": "user",
                     "content": prompt,
                 },
+
             ],
+
             temperature=0.3,
+
             max_completion_tokens=1024,
         )
 
+
         answer = response.choices[0].message.content
 
+
         if not answer:
-            return "⚠ Groq returned an empty response."
+
+            return (
+                "⚠ Groq returned an empty response."
+            )
+
 
         return answer
 
+
     except Exception as e:
 
-        print(f"Groq error using model '{GROQ_MODEL}': {e}")
+        print(
+            f"Groq error using model "
+            f"'{GROQ_MODEL}': {e}"
+        )
 
         return (
             f"⚠ Groq error: {e}\n\n"
-            f"Configured model: {GROQ_MODEL}"
+            f"Model: {GROQ_MODEL}"
         )
 
 
 # ============================================================
-# FORMAT RESPONSE
+# FORMAT AI RESPONSE
 # ============================================================
 
-def format_as_bullets(text: str) -> str:
-    """
-    Convert multi-line response into bullet-style formatting.
-    """
+def format_as_bullets(
+    text: str
+) -> str:
 
     lines = [
         line.strip()
@@ -285,183 +342,402 @@ def format_as_bullets(text: str) -> str:
             or lower.startswith("step")
             or line.endswith(":")
         ):
-            formatted.append(f"\n\n**{line}**")
 
-        elif line.startswith(("-", "•", "*")):
+            formatted.append(
+                f"\n\n**{line}**"
+            )
+
+        elif line.startswith(
+            ("-", "•", "*")
+        ):
+
             formatted.append(line)
 
         else:
-            formatted.append(f"• {line}")
+
+            formatted.append(
+                f"• {line}"
+            )
+
 
     return "\n".join(formatted)
 
 
 # ============================================================
-# ROUTES
+# HOMEPAGE
 # ============================================================
 
-@app.route("/", methods=["GET"])
+@app.route(
+    "/",
+    methods=["GET"]
+)
 def home():
-    """
-    NEXORA UI is now the homepage.
-    """
 
-    return render_template("index.html")
+    return render_template(
+        "index.html"
+    )
 
 
-@app.route("/interests", methods=["GET"])
+# ============================================================
+# HEALTH CHECK
+# ============================================================
+
+@app.route(
+    "/health",
+    methods=["GET"]
+)
+def health():
+
+    return jsonify({
+
+        "status": "ok",
+
+        "groq_configured": bool(
+            GROQ_API_KEY
+        ),
+
+        "groq_model": GROQ_MODEL,
+
+    })
+
+
+# ============================================================
+# GROQ STATUS
+# ============================================================
+
+@app.route(
+    "/groq-status",
+    methods=["GET"]
+)
+def groq_status():
+
+    if not GROQ_API_KEY:
+
+        return jsonify({
+
+            "status": "error",
+
+            "message":
+                "GROQ_API_KEY is not configured",
+
+            "model": GROQ_MODEL,
+
+        }), 500
+
+
+    if groq_client is None:
+
+        return jsonify({
+
+            "status": "error",
+
+            "message":
+                "Groq client is not initialized",
+
+            "model": GROQ_MODEL,
+
+        }), 500
+
+
+    try:
+
+        models = groq_client.models.list()
+
+
+        available_models = [
+            model.id
+            for model in models.data
+        ]
+
+
+        model_available = (
+            GROQ_MODEL
+            in available_models
+        )
+
+
+        return jsonify({
+
+            "status":
+                "success"
+                if model_available
+                else "model_not_available",
+
+            "configured_model":
+                GROQ_MODEL,
+
+            "model_available":
+                model_available,
+
+            "available_models":
+                available_models,
+
+        })
+
+
+    except Exception as e:
+
+        print(
+            f"Groq status error: {e}"
+        )
+
+
+        return jsonify({
+
+            "status": "error",
+
+            "message": str(e),
+
+            "model": GROQ_MODEL,
+
+        }), 500
+
+
+# ============================================================
+# INTERESTS
+# ============================================================
+
+@app.route(
+    "/interests",
+    methods=["GET"]
+)
 def get_interests():
 
     return jsonify({
-        "interests": INTERESTS
+
+        "interests":
+            INTERESTS
+
     })
 
 
-@app.route("/levels", methods=["GET"])
+# ============================================================
+# LEVELS
+# ============================================================
+
+@app.route(
+    "/levels",
+    methods=["GET"]
+)
 def get_levels():
 
     return jsonify({
-        "levels": LEVELS
+
+        "levels":
+            LEVELS
+
     })
 
 
-@app.route("/role_roadmaps", methods=["GET"])
+# ============================================================
+# ALL ROADMAPS
+# ============================================================
+
+@app.route(
+    "/role_roadmaps",
+    methods=["GET"]
+)
 def get_all_roadmaps():
 
     return jsonify({
-        "role_roadmaps": ROLE_ROADMAPS
+
+        "role_roadmaps":
+            ROLE_ROADMAPS
+
     })
 
 
-@app.route("/role_roadmaps/<role>", methods=["GET"])
-def get_role_roadmap(role: str):
+# ============================================================
+# SPECIFIC ROADMAP
+# ============================================================
 
-    for key in ROLE_ROADMAPS.keys():
+@app.route(
+    "/role_roadmaps/<role>",
+    methods=["GET"]
+)
+def get_role_roadmap(
+    role: str
+):
+
+    for key in ROLE_ROADMAPS:
 
         if key.lower() == role.lower():
 
             return jsonify({
+
                 "role": key,
-                "steps": ROLE_ROADMAPS[key]
+
+                "steps":
+                    ROLE_ROADMAPS[key]
+
             })
 
+
     return jsonify({
-        "error": f"Role '{role}' not found"
+
+        "error":
+            f"Role '{role}' not found"
+
     }), 404
 
 
-@app.route("/recommendations", methods=["POST"])
+# ============================================================
+# RECOMMENDATIONS
+# ============================================================
+
+@app.route(
+    "/recommendations",
+    methods=["POST"]
+)
 def get_recommendations():
 
-    data = request.get_json(force=True) or {}
+    data = request.get_json(
+        force=True
+    ) or {}
 
-    interest = data.get("interest")
-    level = data.get("level")
+
+    interest = data.get(
+        "interest"
+    )
+
+    level = data.get(
+        "level"
+    )
+
 
     if interest not in INTERESTS:
 
         return jsonify({
-            "error": "Invalid or missing 'interest'",
-            "allowed_interests": INTERESTS
+
+            "error":
+                "Invalid or missing 'interest'",
+
+            "allowed_interests":
+                INTERESTS,
+
         }), 400
+
 
     if level not in LEVELS:
 
         return jsonify({
-            "error": "Invalid or missing 'level'",
-            "allowed_levels": LEVELS
+
+            "error":
+                "Invalid or missing 'level'",
+
+            "allowed_levels":
+                LEVELS,
+
         }), 400
 
-    recs = generate_recommendations(
-        interest,
-        level
+
+    recommendations = (
+        generate_recommendations(
+            interest,
+            level
+        )
     )
 
+
     return jsonify({
-        "interest": interest,
-        "level": level,
-        "recommendations": recs
+
+        "interest":
+            interest,
+
+        "level":
+            level,
+
+        "recommendations":
+            recommendations,
+
     })
 
 
-@app.route("/chat", methods=["POST"])
+# ============================================================
+# CHAT
+# ============================================================
+
+@app.route(
+    "/chat",
+    methods=["POST"]
+)
 def chat():
-
-    data = request.get_json(force=True) or {}
-
-    message = (
-        data.get("message") or ""
-    ).strip()
-
-    if not message:
-
-        return jsonify({
-            "answer": "Please type a question."
-        })
-
-    answer = ask_llm(message)
-
-    formatted = format_as_bullets(answer)
-
-    return jsonify({
-        "answer": formatted
-    })
-
-
-@app.route("/mentor", methods=["GET"])
-def mentor_ui():
-    """
-    Direct access to the NEXORA mentor UI.
-    """
-
-    return render_template("index.html")
-
-
-# ============================================================
-# OPTIONAL GROQ DIAGNOSTIC ENDPOINT
-# ============================================================
-
-@app.route("/groq-status", methods=["GET"])
-def groq_status():
-    """
-    Diagnostic endpoint.
-
-    Does NOT expose the API key.
-    """
-
-    if not GROQ_API_KEY:
-        return jsonify({
-            "status": "error",
-            "message": "GROQ_API_KEY is not configured",
-            "model": GROQ_MODEL
-        }), 500
-
-    if groq_client is None:
-        return jsonify({
-            "status": "error",
-            "message": "Groq client is not initialized",
-            "model": GROQ_MODEL
-        }), 500
 
     try:
 
-        model = groq_client.models.retrieve(
-            GROQ_MODEL
+        data = request.get_json(
+            force=True
+        ) or {}
+
+
+        message = (
+            data.get("message")
+            or ""
+        ).strip()
+
+
+        if not message:
+
+            return jsonify({
+
+                "answer":
+                    "Please type a question."
+
+            }), 400
+
+
+        answer = ask_llm(
+            message
         )
 
+
+        formatted = format_as_bullets(
+            answer
+        )
+
+
         return jsonify({
-            "status": "success",
-            "message": "Groq model is accessible",
-            "model": model.id
+
+            "answer":
+                formatted,
+
+            "model":
+                GROQ_MODEL,
+
         })
+
 
     except Exception as e:
 
+        print(
+            f"/chat error: {e}"
+        )
+
+
         return jsonify({
-            "status": "error",
-            "message": str(e),
-            "model": GROQ_MODEL
+
+            "answer":
+                f"⚠ Server error: {str(e)}",
+
+            "error":
+                str(e),
+
         }), 500
+
+
+# ============================================================
+# MENTOR UI
+# ============================================================
+
+@app.route(
+    "/mentor",
+    methods=["GET"]
+)
+def mentor_ui():
+
+    return render_template(
+        "index.html"
+    )
 
 
 # ============================================================
@@ -471,7 +747,15 @@ def groq_status():
 if __name__ == "__main__":
 
     app.run(
+
         host="0.0.0.0",
-        port=int(os.getenv("PORT", 5000)),
-        debug=False
+
+        port=int(
+            os.getenv(
+                "PORT",
+                5000
+            )
+        ),
+
+        debug=False,
     )

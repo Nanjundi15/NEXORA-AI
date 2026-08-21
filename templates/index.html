@@ -166,6 +166,47 @@
             display: none;
         }
     }
+
+    /* Career Roadmap — cream/brown card with black body text */
+    .career-roadmap-panel,
+    .career-roadmap-panel p,
+    .career-roadmap-panel li,
+    .career-roadmap-panel select {
+        color: #111111 !important;
+    }
+
+    .career-roadmap-panel {
+        background: #fffaf3 !important;
+        border: 1px solid #ded2c3 !important;
+    }
+
+    .career-roadmap-panel select {
+        background: #fffdf9 !important;
+        color: #111111 !important;
+        border-color: #d8cbbb !important;
+    }
+
+    .career-roadmap-panel .roadmap-step-label {
+        color: #6b4f3a !important;
+        font-weight: 700;
+    }
+
+    .career-roadmap-panel .roadmap-step-text {
+        color: #111111 !important;
+    }
+
+    /* Ensure the AI chat also stays cream/brown rather than dark slate. */
+    .nexora-ai {
+        background: transparent !important;
+        color: #111111 !important;
+    }
+
+    #thinking-bubble > div {
+        background: #fffaf3 !important;
+        color: #5d4b3b !important;
+        border-color: #ded2c3 !important;
+    }
+
 </style>
 
 </head>
@@ -404,7 +445,7 @@
 
 
         <!-- ROADMAP -->
-        <div class="tool-panel rounded-2xl p-4">
+        <div class="tool-panel rounded-2xl p-4 career-roadmap-panel">
 
             <h3 class="text-sm font-semibold text-[#4a3729]">
                 🧭 Career Roadmap
@@ -488,18 +529,18 @@ const initialBotMessage = `
                rounded-2xl
                rounded-bl-sm
                px-3 py-2
-               bg-slate-800/90
-               text-slate-50
-               border border-slate-700/70"
+               bg-[#fffaf3]
+               text-[#111111]
+               border border-[#ded2c3]"
     >
 
         👋
 
         <span
             class="font-semibold
-                   text-emerald-300"
+                   text-[#6b4f3a]"
         >
-            Hello, welcome to NEXORA!
+            Hello, welcome to NEXORA AI!
         </span>
 
         <br>
@@ -580,7 +621,7 @@ function appendMessage(
         )
         .replace(
             /\*\*(.+?)\*\*/g,
-            "<span class='font-semibold text-emerald-300'>$1</span>"
+            "<span class='font-semibold text-[#6b4f3a]'>$1</span>"
         );
 
 
@@ -635,12 +676,12 @@ function appendThinking() {
         document.createElement("div");
 
     bubble.className =
-        "bg-slate-800/90 " +
-        "text-slate-300 " +
+        "bg-[#fffaf3] " +
+        "text-[#5d4b3b] " +
         "rounded-2xl " +
         "px-3 py-2 " +
         "text-xs " +
-        "border border-slate-700";
+        "border border-[#ded2c3]";
 
 
     bubble.innerHTML =
@@ -1039,7 +1080,7 @@ async function initSelectors() {
 
 
         recoList.innerHTML =
-            `<li class="text-red-400">
+            `<li class="text-[#8b3f2f]">
                 ⚠ Unable to load backend data:
                 ${escapeHtml(error.message)}
             </li>`;
@@ -1092,14 +1133,14 @@ function updateRoleSteps(
                 <p
                     class="text-xs
                            font-semibold
-                           text-emerald-300"
+                           text-[#6b4f3a]"
                 >
                     Step ${index + 1}
                 </p>
 
                 <p
                     class="text-xs
-                           text-slate-100"
+                           text-[#111111]"
                 >
                     ${escapeHtml(step)}
                 </p>
@@ -1164,7 +1205,7 @@ roleSelect.addEventListener(
 
             roleSteps.innerHTML =
                 `
-                <li class="text-red-400">
+                <li class="text-[#8b3f2f]">
                     ⚠ Unable to load roadmap:
                     ${escapeHtml(error.message)}
                 </li>
@@ -1292,7 +1333,7 @@ recoForm.addEventListener(
 
             recoList.innerHTML =
                 `
-                <li class="text-red-400">
+                <li class="text-[#8b3f2f]">
                     ⚠ ${escapeHtml(error.message)}
                 </li>
                 `;

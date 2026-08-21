@@ -15,575 +15,420 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
+    :root {
+        --cream: #f7f2e9;
+        --cream-light: #fbf8f2;
+        --cream-dark: #eee5d8;
+        --brown: #6b4f3a;
+        --brown-dark: #3f2d21;
+        --brown-soft: #8a6a50;
+        --border: #ded2c3;
+        --text: #332820;
+        --muted: #786b5f;
+        --user: #e5d4c0;
+    }
 
-        .chat-scroll {
-            scrollbar-width: thin;
+    * {
+        box-sizing: border-box;
+    }
+
+    html, body {
+        height: 100%;
+    }
+
+    body {
+        margin: 0;
+        background: var(--cream);
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .chat-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: #c9b9a6 transparent;
+    }
+
+    .chat-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chat-scroll::-webkit-scrollbar-thumb {
+        background: #c9b9a6;
+        border-radius: 999px;
+    }
+
+    .nexora-shell {
+        width: 100%;
+        height: 100vh;
+        background: var(--cream);
+        overflow: hidden;
+    }
+
+    .nexora-sidebar {
+        background: #f1eadf;
+        border-right: 1px solid var(--border);
+    }
+
+    .nexora-main {
+        background: var(--cream-light);
+    }
+
+    .nexora-composer {
+        background: #fffdf9;
+        border: 1px solid #d8cbbb;
+        box-shadow: 0 10px 30px rgba(74, 52, 35, .08);
+    }
+
+    .nexora-brown {
+        color: var(--brown);
+    }
+
+    .nexora-brown-bg {
+        background: var(--brown);
+    }
+
+    .nexora-card {
+        background: #fffdf9;
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 18px rgba(74, 52, 35, .05);
+    }
+
+    .nexora-user {
+        background: var(--user);
+        color: var(--brown-dark);
+    }
+
+    .nexora-ai {
+        background: transparent;
+        color: var(--text);
+    }
+
+    .nexora-input::placeholder {
+        color: #9b8d80;
+    }
+
+    .sidebar-item {
+        transition: all .18s ease;
+    }
+
+    .sidebar-item:hover {
+        background: #e7ddcf;
+        color: var(--brown-dark);
+    }
+
+    .sidebar-item.active {
+        background: #e3d6c6;
+        color: var(--brown-dark);
+        font-weight: 600;
+    }
+
+    .new-chat-btn {
+        border: 1px solid #cbb9a6;
+        background: #fffaf3;
+        color: var(--brown-dark);
+        transition: all .18s ease;
+    }
+
+    .new-chat-btn:hover {
+        background: #e9ddce;
+        border-color: #a88b70;
+    }
+
+    .send-btn {
+        background: var(--brown);
+        color: #fffaf4;
+        transition: all .18s ease;
+    }
+
+    .send-btn:hover {
+        background: #563e2e;
+        transform: translateY(-1px);
+    }
+
+    .tool-panel {
+        background: #fffaf4;
+        border: 1px solid var(--border);
+    }
+
+    select {
+        color: var(--text);
+        background: #fffdf9;
+    }
+
+    @media (max-width: 900px) {
+        .nexora-sidebar {
+            width: 220px;
         }
+    }
 
-        .chat-scroll::-webkit-scrollbar {
-            width: 6px;
+    @media (max-width: 720px) {
+        .nexora-sidebar {
+            display: none;
         }
-
-        .chat-scroll::-webkit-scrollbar-thumb {
-            background: #4b5563;
-            border-radius: 999px;
-        }
-
-        @keyframes pulse-glow {
-
-            0% {
-                box-shadow:
-                    0 0 0 0
-                    rgba(34, 197, 94, 0.4);
-            }
-
-            70% {
-                box-shadow:
-                    0 0 0 14px
-                    rgba(34, 197, 94, 0);
-            }
-
-            100% {
-                box-shadow:
-                    0 0 0 0
-                    rgba(34, 197, 94, 0);
-            }
-
-        }
-
-    </style>
+    }
+</style>
 
 </head>
 
 
-<body
-    class="min-h-screen bg-[#050816] text-slate-50 flex items-center justify-center p-4"
->
+<body>
 
-<div
-    class="w-full max-w-6xl
-           bg-gradient-to-br
-           from-slate-900/80
-           via-slate-900/90
-           to-black/90
-           border border-slate-800/80
-           rounded-3xl
-           shadow-[0_0_80px_rgba(15,23,42,0.8)]
-           p-4 md:p-6
-           flex flex-col gap-4"
->
+<div class="nexora-shell flex">
 
+    <!-- SIDEBAR -->
+    <aside class="nexora-sidebar w-64 shrink-0 hidden sm:flex flex-col p-4">
 
-<!-- =====================================================
-     HEADER
-===================================================== -->
-
-<header
-    class="flex items-start justify-between gap-3"
->
-
-    <div
-        class="flex items-center gap-4"
-    >
-
-        <div class="relative">
-
-            <div
-                class="h-12 w-12 md:h-14 md:w-14
-                       rounded-2xl
-                       bg-gradient-to-br
-                       from-emerald-400
-                       to-cyan-400
-                       flex items-center justify-center
-                       shadow-lg
-                       animate-[pulse-glow_2.5s_infinite]"
-            >
-
-                <div
-                    class="h-7 w-7 md:h-8 md:w-8
-                           rounded-xl
-                           bg-slate-950
-                           flex items-center justify-center"
-                >
-
-                    <span
-                        class="text-2xl md:text-3xl"
-                    >
-                        🤖
-                    </span>
-
-                </div>
-
+        <div class="flex items-center gap-3 px-2 py-2 mb-5">
+            <div class="h-9 w-9 rounded-xl nexora-brown-bg text-white flex items-center justify-center text-lg">
+                ✦
             </div>
 
-        </div>
-
-
-        <div>
-
-            <h1
-                class="text-2xl md:text-3xl
-                       font-semibold
-                       tracking-tight"
-            >
-                NEXORA Dynamic AI Mentor
-            </h1>
-
-            <p
-                class="text-xs md:text-sm
-                       text-slate-300 mt-1"
-            >
-
-                AI assistant for
-
-                <span
-                    class="font-semibold text-emerald-400"
-                >
-                    careers
-                </span>,
-
-                <span
-                    class="font-semibold text-emerald-400"
-                >
-                    courses
-                </span>,
-
-                <span
-                    class="font-semibold text-emerald-400"
-                >
-                    skills
-                </span>
-
-                &
-
-                <span
-                    class="font-semibold text-emerald-400"
-                >
-                    placements
-                </span>.
-
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <div
-        class="text-[0.65rem]
-               md:text-xs
-               text-right
-               text-slate-400"
-    >
-
-        <p>
-            Career | Growth
-        </p>
-
-        <p>
-            Designed for all Techies ✨
-        </p>
-
-    </div>
-
-</header>
-
-
-<!-- =====================================================
-     WELCOME
-===================================================== -->
-
-<section
-    class="w-full
-           rounded-2xl
-           bg-gradient-to-r
-           from-emerald-500/15
-           via-sky-500/10
-           to-purple-500/10
-           border border-emerald-500/30
-           px-4 py-3
-           flex items-center gap-3
-           text-xs md:text-sm"
->
-
-    <div
-        class="h-8 w-8
-               rounded-xl
-               bg-slate-900/80
-               border border-emerald-400/60
-               flex items-center justify-center"
-    >
-
-        <span class="text-lg">
-            💬
-        </span>
-
-    </div>
-
-
-    <div>
-
-        <p
-            class="font-semibold text-emerald-300"
-        >
-            Hello, welcome to NEXORA!
-        </p>
-
-        <p
-            class="text-slate-300"
-        >
-            I'm your AI mentor.
-            Ask me about roadmaps,
-            projects, interviews,
-            or explore learning paths.
-        </p>
-
-    </div>
-
-</section>
-
-
-<!-- =====================================================
-     MAIN
-===================================================== -->
-
-<main
-    class="grid
-           grid-cols-1
-           lg:grid-cols-[2fr,1.5fr]
-           gap-4"
->
-
-
-<!-- =====================================================
-     CHAT
-===================================================== -->
-
-<section
-    class="bg-[#050b16]/90
-           border border-slate-800/70
-           rounded-2xl
-           p-4
-           flex flex-col
-           max-h-[80vh]"
->
-
-
-<div
-    class="flex items-center
-           justify-between mb-2"
->
-
-    <h2
-        class="text-sm md:text-base
-               font-semibold
-               flex items-center gap-2"
-    >
-
-        <span
-            class="inline-flex
-                   h-2 w-2
-                   rounded-full
-                   bg-emerald-400
-                   animate-pulse"
-        ></span>
-
-        ⚡ NEXORA AI ⚡
-
-        <span
-            id="model-label"
-            class="text-[0.6rem]
-                   text-slate-400"
-        >
-        </span>
-
-    </h2>
-
-
-    <button
-        id="clear-btn"
-        class="text-[0.65rem]
-               px-3 py-1
-               rounded-full
-               border border-slate-600
-               bg-slate-900/80
-               hover:border-emerald-400
-               hover:text-emerald-300
-               transition"
-    >
-        New Chat
-    </button>
-
-</div>
-
-
-<div
-    id="chat-box"
-    class="flex-1
-           overflow-y-auto
-           chat-scroll
-           space-y-3
-           pr-1
-           text-sm
-           bg-gradient-to-b
-           from-slate-900/60
-           to-slate-950/80
-           rounded-xl
-           px-2 py-3"
->
-</div>
-
-
-<form
-    id="chat-form"
-    class="mt-3
-           flex items-center gap-2"
->
-
-    <textarea
-        id="user-input"
-        rows="2"
-        class="flex-1
-               bg-slate-900/90
-               border border-slate-700
-               rounded-xl
-               px-3 py-2
-               text-xs md:text-sm
-               focus:outline-none
-               focus:ring-2
-               focus:ring-emerald-500/70
-               resize-none
-               placeholder:text-slate-500"
-        placeholder="Ask anything like: 6-month roadmap for AI Engineer..."
-    ></textarea>
-
-
-    <button
-        type="submit"
-        id="send-btn"
-        class="px-4 py-2
-               rounded-xl
-               bg-emerald-500
-               text-slate-950
-               text-xs md:text-sm
-               font-semibold
-               hover:bg-emerald-400
-               active:scale-95
-               transition"
-    >
-        Send
-    </button>
-
-</form>
-
-</section>
-
-
-<!-- =====================================================
-     RIGHT PANEL
-===================================================== -->
-
-<section
-    class="space-y-4
-           text-xs md:text-sm"
->
-
-
-<!-- RECOMMENDER -->
-
-<div
-    class="bg-[#050b16]/90
-           border border-slate-800/70
-           rounded-2xl
-           p-4"
->
-
-    <h2
-        class="text-sm md:text-base
-               font-semibold mb-1"
-    >
-        📚 Static Learning Path Recommender
-    </h2>
-
-
-    <p
-        class="text-[0.7rem]
-               text-slate-400 mb-3"
-    >
-        Choose your interest and experience level.
-    </p>
-
-
-    <form
-        id="reco-form"
-        class="space-y-2"
-    >
-
-        <div
-            class="flex flex-col
-                   sm:flex-row gap-3"
-        >
-
-            <div class="flex-1">
-
-                <label
-                    class="text-xs text-slate-400"
-                >
-                    Interest / Track
-                </label>
-
-                <select
-                    id="interest-select"
-                    class="mt-1
-                           w-full
-                           bg-slate-950
-                           border border-slate-700
-                           rounded-xl
-                           px-3 py-2"
-                >
-                </select>
-
+            <div>
+                <h1 class="text-lg font-semibold tracking-tight">NEXORA</h1>
+                <p class="text-[11px] text-[#88796b]">AI Career Mentor</p>
             </div>
-
-
-            <div class="w-full sm:w-40">
-
-                <label
-                    class="text-xs text-slate-400"
-                >
-                    Level
-                </label>
-
-                <select
-                    id="level-select"
-                    class="mt-1
-                           w-full
-                           bg-slate-950
-                           border border-slate-700
-                           rounded-xl
-                           px-3 py-2"
-                >
-                </select>
-
-            </div>
-
         </div>
-
 
         <button
-            type="submit"
-            class="mt-2
-                   px-4 py-2
-                   rounded-xl
-                   bg-sky-500
-                   text-slate-950
-                   text-xs
-                   font-semibold
-                   hover:bg-sky-400"
+            id="clear-btn"
+            class="new-chat-btn w-full rounded-xl px-3 py-2.5 text-sm flex items-center justify-center gap-2 mb-6"
         >
-            Generate Learning Path
+            <span class="text-lg leading-none">＋</span>
+            New chat
         </button>
 
-    </form>
+        <div class="text-[10px] uppercase tracking-[.14em] text-[#9a8b7c] px-2 mb-2">
+            Explore
+        </div>
+
+        <nav class="space-y-1">
+            <button class="sidebar-item active w-full text-left rounded-lg px-3 py-2 text-sm">
+                💬 NEXORA AI
+            </button>
+
+            <button class="sidebar-item w-full text-left rounded-lg px-3 py-2 text-sm"
+                    onclick="document.getElementById('interest-select').focus()">
+                📚 Learning Paths
+            </button>
+
+            <button class="sidebar-item w-full text-left rounded-lg px-3 py-2 text-sm"
+                    onclick="document.getElementById('role-select').focus()">
+                🧭 Career Roadmaps
+            </button>
+
+            <button class="sidebar-item w-full text-left rounded-lg px-3 py-2 text-sm"
+                    onclick="userInput.focus()">
+                🎯 Interview Prep
+            </button>
+
+            <button class="sidebar-item w-full text-left rounded-lg px-3 py-2 text-sm"
+                    onclick="userInput.focus()">
+                🛠 Projects
+            </button>
+        </nav>
+
+        <div class="mt-auto pt-4 border-t border-[#ddd1c2]">
+            <p class="text-xs font-medium text-[#5d4b3b] px-2">
+                Career • Growth • Skills
+            </p>
+            <p class="text-[11px] text-[#948578] px-2 mt-1">
+                Designed for Techies ✦
+            </p>
+        </div>
+
+    </aside>
 
 
-    <ul
-        id="reco-list"
-        class="mt-3
-               space-y-1.5
-               text-xs
-               list-disc
-               list-inside"
-    >
-    </ul>
+    <!-- MAIN CHAT AREA -->
+    <main class="nexora-main flex-1 min-w-0 flex flex-col">
+
+        <!-- TOP BAR -->
+        <header class="h-16 shrink-0 border-b border-[#e2d7c9] px-5 md:px-8 flex items-center justify-between">
+
+            <div>
+                <h2 class="text-sm md:text-base font-semibold text-[#3f3025]">
+                    NEXORA AI
+                </h2>
+
+                <p class="text-[11px] text-[#8b7d70]">
+                    Your personal AI career mentor
+                    <span id="model-label"></span>
+                </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <span class="hidden md:inline text-[11px] text-[#918274]">
+                    Career | Growth
+                </span>
+
+                <button
+                    onclick="document.documentElement.classList.toggle('sepia')"
+                    class="h-9 w-9 rounded-lg border border-[#d8cbbb] bg-[#fffaf3] text-[#6b4f3a] hover:bg-[#eee3d5] transition"
+                    title="Appearance"
+                >
+                    ☼
+                </button>
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+        <div class="flex-1 min-h-0 overflow-hidden flex flex-col">
+
+            <!-- CHAT -->
+            <section class="flex-1 min-h-0 overflow-y-auto chat-scroll">
+
+                <div
+                    id="chat-box"
+                    class="max-w-3xl mx-auto w-full px-5 md:px-8 py-8 space-y-7"
+                >
+                </div>
+
+            </section>
+
+
+            <!-- COMPOSER -->
+            <div class="shrink-0 px-4 md:px-8 pb-5 pt-2">
+
+                <form
+                    id="chat-form"
+                    class="nexora-composer max-w-3xl mx-auto rounded-2xl p-2"
+                >
+
+                    <div class="flex items-end gap-2">
+
+                        <textarea
+                            id="user-input"
+                            rows="1"
+                            class="nexora-input flex-1 bg-transparent border-0 outline-none resize-none px-3 py-2.5 text-sm text-[#3b2d22]"
+                            placeholder="Ask NEXORA anything..."
+                        ></textarea>
+
+                        <button
+                            type="submit"
+                            id="send-btn"
+                            class="send-btn h-10 min-w-10 rounded-xl px-3 flex items-center justify-center font-semibold"
+                            title="Send"
+                        >
+                            ↑
+                        </button>
+
+                    </div>
+
+                    <div class="px-3 pb-1 pt-1 text-[10px] text-[#9b8d80]">
+                        NEXORA can help with careers, roadmaps, projects, interviews and skills.
+                    </div>
+
+                </form>
+
+                <p class="text-center text-[10px] text-[#a09284] mt-2">
+                    AI-generated responses may contain mistakes. Verify important information.
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- TOOLS DRAWER / RIGHT PANEL -->
+    <aside class="hidden xl:block w-80 shrink-0 bg-[#f1eadf] border-l border-[#ded2c3] overflow-y-auto chat-scroll p-4">
+
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h2 class="text-sm font-semibold text-[#433327]">
+                    NEXORA Tools
+                </h2>
+
+                <p class="text-[11px] text-[#8b7d70]">
+                    Explore your learning path
+                </p>
+            </div>
+
+            <span class="text-[#8b6b4f]">✦</span>
+        </div>
+
+
+        <!-- LEARNING PATH -->
+        <div class="tool-panel rounded-2xl p-4 mb-4">
+
+            <h3 class="text-sm font-semibold text-[#4a3729]">
+                📚 Learning Path
+            </h3>
+
+            <p class="text-[11px] text-[#88796b] mt-1 mb-3">
+                Choose your interest and level.
+            </p>
+
+            <form id="reco-form" class="space-y-3">
+
+                <div>
+                    <label class="text-[11px] text-[#7e7063]">
+                        Interest / Track
+                    </label>
+
+                    <select
+                        id="interest-select"
+                        class="mt-1 w-full border border-[#d8cbbb] rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-[#b79b7d]"
+                    ></select>
+                </div>
+
+                <div>
+                    <label class="text-[11px] text-[#7e7063]">
+                        Level
+                    </label>
+
+                    <select
+                        id="level-select"
+                        class="mt-1 w-full border border-[#d8cbbb] rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-[#b79b7d]"
+                    ></select>
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full rounded-xl bg-[#6b4f3a] text-white py-2 text-xs font-semibold hover:bg-[#563e2e] transition"
+                >
+                    Generate Path
+                </button>
+
+            </form>
+
+            <ul
+                id="reco-list"
+                class="mt-3 space-y-2 text-xs text-[#5b4a3b] list-disc list-inside"
+            ></ul>
+
+        </div>
+
+
+        <!-- ROADMAP -->
+        <div class="tool-panel rounded-2xl p-4">
+
+            <h3 class="text-sm font-semibold text-[#4a3729]">
+                🧭 Career Roadmap
+            </h3>
+
+            <p class="text-[11px] text-[#88796b] mt-1 mb-3">
+                Select a target role.
+            </p>
+
+            <select
+                id="role-select"
+                class="w-full border border-[#d8cbbb] rounded-xl px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-[#b79b7d]"
+            ></select>
+
+            <ol
+                id="role-steps"
+                class="relative border-l border-[#d5c6b5] ml-2 mt-4 space-y-4"
+            ></ol>
+
+        </div>
+
+    </aside>
 
 </div>
-
-
-<!-- ROADMAP -->
-
-<div
-    class="bg-[#050b16]/90
-           border border-slate-800/70
-           rounded-2xl
-           p-4"
->
-
-    <h2
-        class="text-sm md:text-base
-               font-semibold mb-1"
-    >
-        🧭 Role-Based Roadmap Viewer
-    </h2>
-
-
-    <p
-        class="text-xs
-               text-slate-400 mb-3"
-    >
-        Select a role to view its roadmap.
-    </p>
-
-
-    <label
-        class="text-xs text-slate-400"
-    >
-        Target Role
-    </label>
-
-
-    <select
-        id="role-select"
-        class="mt-1
-               w-full
-               bg-slate-950
-               border border-slate-700
-               rounded-xl
-               px-3 py-2"
-    >
-    </select>
-
-
-    <ol
-        id="role-steps"
-        class="relative
-               border-l
-               border-slate-700
-               ml-1 mt-4
-               space-y-3"
-    >
-    </ol>
-
-</div>
-
-</section>
-
-</main>
-
-
-<footer
-    class="pt-3
-           text-[0.65rem]
-           text-slate-500
-           border-t
-           border-slate-800/60
-           flex
-           justify-between"
->
-
-    <p>
-        ⚡ NEXORA Dynamic AI Mentor ⚡
-    </p>
-
-    <p>
-        AI • Career • Growth
-    </p>
-
-</footer>
-
-
-</div>
-
 
 <script>
 
@@ -722,8 +567,8 @@ function appendMessage(
         "shadow-sm " +
         (
             role === "user"
-            ? "bg-emerald-500 text-slate-950 rounded-br-sm"
-            : "bg-slate-800/90 text-slate-50 rounded-bl-sm border border-slate-700/70"
+            ? "nexora-user rounded-2xl rounded-br-sm"
+            : "nexora-ai rounded-2xl rounded-bl-sm"
         );
 
 
@@ -804,7 +649,7 @@ function appendThinking() {
             class="inline-flex
                    h-2 w-2
                    rounded-full
-                   bg-emerald-400
+                   bg-[#8b6b4f]
                    animate-ping"
         ></span>
 
@@ -1238,7 +1083,7 @@ function updateRoleSteps(
                 <div
                     class="absolute
                            w-2 h-2
-                           bg-emerald-400
+                           bg-[#8b6b4f]
                            rounded-full
                            -left-1.5
                            mt-1"

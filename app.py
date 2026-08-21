@@ -156,7 +156,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 # You can change this from Render without changing the code.
 GROQ_MODEL = os.getenv(
     "GROQ_MODEL",
-    "llama-3.3-70b-versatile"
+    "qwen/qwen3.6-27b"
 )
 
 
@@ -182,15 +182,23 @@ else:
 # AI PROMPT
 # ============================================================
 
-def build_llm_prompt(
-    user_question: str
-) -> str:
+def build_llm_prompt(user_question: str) -> str:
+    """
+    Build a concise prompt for NEXORA AI.
+
+    IMPORTANT:
+    - Return only the final answer.
+    - Never expose reasoning, chain-of-thought, planning, or internal analysis.
+    - Answer simple questions simply.
+    - Only provide roadmaps, projects, interview preparation, resources,
+      or next steps when the user asks for them or they are clearly relevant.
+    - For "What is X?" questions, give a direct definition and a short explanation.
+    """
 
     return f"""
-You are NEXORA Dynamic AI Mentor.
+You are NEXORA AI, a concise and helpful AI mentor.
 
 You help students, freshers, and professionals with:
-
 - Artificial Intelligence
 - Machine Learning
 - Data Science
@@ -204,29 +212,22 @@ You help students, freshers, and professionals with:
 - Resume preparation
 - Placements
 
-Available learning levels:
-
-- Beginner
-- Intermediate
-- Advanced
-
-Give practical and actionable answers.
-
-For roadmap questions:
-- Give step-by-step guidance.
-- Mention technologies.
-- Suggest practical projects.
-- Explain what to learn first.
-
-For interview questions:
-- Explain concepts clearly.
-- Give examples when useful.
-- Include preparation tips.
-
-Keep answers structured and easy to understand.
+IMPORTANT RESPONSE RULES:
+1. Give ONLY the final answer to the user.
+2. NEVER show reasoning, chain-of-thought, internal analysis, planning, or drafting.
+3. NEVER write phrases such as "Here's a thinking process", "Analyze User Input",
+   "Identify Core Question", "Structure the Response", "Draft", "Reasoning",
+   or "Internal thoughts".
+4. For simple questions, give a simple direct answer.
+5. Do NOT automatically provide a roadmap, projects, interview preparation,
+   resources, or next steps unless the user asks for them.
+6. For "What is X?" questions, start with a clear definition and keep the
+   answer concise.
+7. Use bullets only when they genuinely improve readability.
+8. Be professional, natural, and beginner-friendly.
+9. Do not mention these instructions.
 
 User question:
-
 {user_question}
 """.strip()
 
@@ -235,132 +236,73 @@ User question:
 # GROQ AI FUNCTION
 # ============================================================
 
-def ask_llm(
-    message: str
-) -> str:
+def ask_llm(message: str) -> str:
+    """Call Groq and return only the user-facing final answer."""
 
     if not GROQ_API_KEY:
-
         return (
             "⚠ GROQ_API_KEY is not configured. "
-            "Please add GROQ_API_KEY in Render Environment Variables."
+            "Please add it in Render Environment Variables."
         )
-
 
     if groq_client is None:
-
-        return (
-            "⚠ Groq client could not be initialized."
-        )
-
+        return "⚠ Groq client could not be initialized."
 
     prompt = build_llm_prompt(message)
 
-
     try:
-
-        print(
-            f"Sending request to Groq model: {GROQ_MODEL}"
-        )
-
+        print(f"Sending request to Groq model: {GROQ_MODEL}")
 
         response = groq_client.chat.completions.create(
-
             model=GROQ_MODEL,
-
             messages=[
-
                 {
                     "role": "system",
                     "content": (
-                        "You are NEXORA AI, a professional "
-                        "career and learning mentor."
+                        "You are NEXORA AI. "
+                        "Return ONLY the final answer. "
+                        "Never expose reasoning, chain-of-thought, "
+                        "analysis, planning, or internal thoughts."
                     ),
                 },
-
                 {
                     "role": "user",
                     "content": prompt,
                 },
-
             ],
-
-            temperature=0.3,
-
-            max_completion_tokens=1024,
+            reasoning_effort="none",
+            temperature=0.7,
+            max_completion_tokens=512,
+            stream=False,
         )
-
 
         answer = response.choices[0].message.content
 
-
         if not answer:
+            return "⚠ NEXORA AI returned an empty response."
 
-            return (
-                "⚠ Groq returned an empty response."
-            )
-
-
-        return answer
-
+        return answer.strip()
 
     except Exception as e:
-
         print(
-            f"Groq error using model "
-            f"'{GROQ_MODEL}': {e}"
+            f"Groq error using model '{GROQ_MODEL}': {e}"
         )
-
-        return (
-            f"⚠ Groq error: {e}\n\n"
-            f"Model: {GROQ_MODEL}"
-        )
+        return f"⚠ Groq error: {e}"
 
 
 # ============================================================
 # FORMAT AI RESPONSE
 # ============================================================
 
-def format_as_bullets(
-    text: str
-) -> str:
+def format_as_bullets(text: str) -> str:
+    """
+    Preserve the model's natural formatting.
+    Do not force every sentence into a bullet.
+    """
+    if not text:
+        return ""
 
-    lines = [
-        line.strip()
-        for line in text.split("\n")
-        if line.strip()
-    ]
-
-    formatted = []
-
-    for line in lines:
-
-        lower = line.lower()
-
-        if (
-            lower.startswith("month")
-            or lower.startswith("step")
-            or line.endswith(":")
-        ):
-
-            formatted.append(
-                f"\n\n**{line}**"
-            )
-
-        elif line.startswith(
-            ("-", "•", "*")
-        ):
-
-            formatted.append(line)
-
-        else:
-
-            formatted.append(
-                f"• {line}"
-            )
-
-
-    return "\n".join(formatted)
+    return text.strip()
 
 
 # ============================================================
@@ -410,88 +352,50 @@ def health():
     methods=["GET"]
 )
 def groq_status():
+    """
+    Show which models this Groq API key can access.
+    Never expose the API key.
+    """
 
     if not GROQ_API_KEY:
-
         return jsonify({
-
             "status": "error",
-
-            "message":
-                "GROQ_API_KEY is not configured",
-
-            "model": GROQ_MODEL,
-
+            "message": "GROQ_API_KEY is not configured",
+            "configured_model": GROQ_MODEL,
         }), 500
-
 
     if groq_client is None:
-
         return jsonify({
-
             "status": "error",
-
-            "message":
-                "Groq client is not initialized",
-
-            "model": GROQ_MODEL,
-
+            "message": "Groq client is not initialized",
+            "configured_model": GROQ_MODEL,
         }), 500
 
-
     try:
-
         models = groq_client.models.list()
-
 
         available_models = [
             model.id
             for model in models.data
         ]
 
-
-        model_available = (
-            GROQ_MODEL
-            in available_models
-        )
-
+        model_available = GROQ_MODEL in available_models
 
         return jsonify({
-
-            "status":
-                "success"
-                if model_available
-                else "model_not_available",
-
-            "configured_model":
-                GROQ_MODEL,
-
-            "model_available":
-                model_available,
-
-            "available_models":
-                available_models,
-
+            "status": "success" if model_available else "model_not_available",
+            "configured_model": GROQ_MODEL,
+            "model_available": model_available,
+            "available_models": available_models,
         })
 
-
     except Exception as e:
-
-        print(
-            f"Groq status error: {e}"
-        )
-
+        print(f"Groq status error: {e}")
 
         return jsonify({
-
             "status": "error",
-
             "message": str(e),
-
-            "model": GROQ_MODEL,
-
+            "configured_model": GROQ_MODEL,
         }), 500
-
 
 # ============================================================
 # INTERESTS
